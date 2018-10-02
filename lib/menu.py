@@ -238,6 +238,13 @@ def reboot_system():
 def settings():
     _logger.debug("Other settings selected")
 
+def reset_parameters():
+    global on_menu
+    _logger.debug("Resetting parameters")
+    if os.path.isfile(os.path.abspath(
+            os.path.join(WORK_DIR, 'dicts/data.json'))):
+        reset_params()
+    on_menu = True
 
 def reset_parameters():
     global on_menu
@@ -283,8 +290,7 @@ def update_firmware():
         reboot_system()
 
 
-ops={'0': rfid_hr_attendance, '1': rfid_reader, '2': settings,
-       '3': reboot_system,
+ops = {'0': rfid_hr_attendance, '1': rfid_reader, '2': settings, '3': reboot_system,
        '4': reset_settings, '5': update_firmware, '6': reset_parameters}
 
 
@@ -325,7 +331,7 @@ def main():
 
         while not turn_off:
             while enter is False and on_menu:
-                enter, pos=select_menu(menu_sel, pos)
+                enter, pos = select_menu(menu_sel, pos)
             # CHOSEN FUNCTIONALITY
             if enter:
                 enter=False
@@ -337,11 +343,9 @@ def main():
                     on_menu=True
                 # BACK FROM SETTINGS
                 elif menu_sel == 2 and pos == 3:
-                    menu_sel=1
-                    pos=2
-                    on_menu=True
-                elif menu_sel == 1 and pos == 1:
-                    OLED1106.screen_drawing(' ')
+                    menu_sel = 1
+                    pos = 2
+                    on_menu = True         
             if menu_sel == 1 and pos == 0:
                 while not odoo:
                     _logger.debug("No Odoo connection available")
@@ -351,25 +355,24 @@ def main():
                                     WORK_DIR, 'dicts/data.json'))):
                         _logger.debug("No data.json available")
                         OLED1106._display_ip()
-                        rfid_reader()
-                        on_menu=True
-                    odoo=instance_connection()
-                    if odoo.uid and on_menu:
-                        OLED1106._display_msg("configured")
+                        time.sleep(5)
+                    odoo = instance_connection()
+                    if odoo.uid:
+                        OLED1106.display_drawing("configured")
                         time.sleep(3)
-                if odoo.uid is False:
+                        on_menu = True
+                while odoo.uid is False:
                     OLED1106.screen_drawing("comERR1")
                     time.sleep(3)
                     OLED1106.screen_drawing("comERR2")
                     time.sleep(3)
-                    while odoo.uid is False:
-                        OLED1106._display_ip()
-                        rfid_reader()
+                    OLED1106._display_ip()
+                    time.sleep(3)
+                    odoo = instance_connection()
+                    if odoo.uid:
+                        OLED1106.display_drawing("configured")
                         time.sleep(3)
-                        odoo=instance_connection()
-                        if odoo.uid:
-                            OLED1106.screen_drawing("configured")
-                            time.sleep(3)
+                        on_menu = True
 
             else:
                 # TODO Add more move between menus functions
