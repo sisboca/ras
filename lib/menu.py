@@ -355,12 +355,12 @@ def main():
                                     WORK_DIR, 'dicts/data.json'))):
                         _logger.debug("No data.json available")
                         OLED1106._display_ip()
-                        time.sleep(5)
-                    odoo = instance_connection()
-                    if odoo.uid:
-                        OLED1106.display_drawing("configured")
-                        time.sleep(3)
+                        time.sleep(2)
                         on_menu = True
+                    odoo = instance_connection()
+                    if odoo.uid and on_menu:
+                        OLED1106._display_msg("configured")
+                        time.sleep(3)
                 while odoo.uid is False:
                     OLED1106.screen_drawing("comERR1")
                     time.sleep(3)
@@ -372,7 +372,6 @@ def main():
                     if odoo.uid:
                         OLED1106.display_drawing("configured")
                         time.sleep(3)
-                        on_menu = True
 
             else:
                 # TODO Add more move between menus functions
