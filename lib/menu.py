@@ -104,7 +104,6 @@ def inputStateOK(channel):
     if on_menu:
         on_OK = True
 
-
 GPIO.add_event_detect(INPUT_PIN_DOWN, GPIO.FALLING, callback=inputStateDown,
                       bouncetime=400)
 GPIO.add_event_detect(INPUT_PIN_OK, GPIO.FALLING, callback=inputStateOK,
@@ -204,7 +203,7 @@ def rfid_hr_attendance():
     card, msg = scan_card(MIFAREReader, odoo)
     if card:
         OLED1106.screen_drawing(msg)
-        time.sleep(2)
+        time.sleep(5)
     else:
         OLED1106.screen_drawing("time")
 
@@ -238,13 +237,6 @@ def reboot_system():
 def settings():
     _logger.debug("Other settings selected")
 
-def reset_parameters():
-    global on_menu
-    _logger.debug("Resetting parameters")
-    if os.path.isfile(os.path.abspath(
-            os.path.join(WORK_DIR, 'dicts/data.json'))):
-        reset_params()
-    on_menu = True
 
 def reset_parameters():
     global on_menu
@@ -252,8 +244,7 @@ def reset_parameters():
     if os.path.isfile(os.path.abspath(
             os.path.join(WORK_DIR, 'dicts/data.json'))):
         reset_params()
-        reboot_system()
-    on_menu=True
+    on_menu = True
 
 
 def updating_repo():
@@ -290,14 +281,15 @@ def update_firmware():
         reboot_system()
 
 
-ops = {'0': rfid_hr_attendance, '1': rfid_reader, '2': settings, '3': reboot_system,
+ops = {'0': rfid_hr_attendance, '1': rfid_reader, '2': settings,
+       '3': reboot_system,
        '4': reset_settings, '5': update_firmware, '6': reset_parameters}
 
 
 def select_menu(menu_sel, pos):
     global on_OK
     global on_Down
-    enter=False
+    enter = False
     if menu_sel == 1:
         OLED1106.display_menu('Main', pos)
     elif menu_sel == 2:
@@ -326,8 +318,8 @@ def main():
 
     if is_wifi_active():
 
-        menu_sel=1
-        pos=0
+        menu_sel = 1
+        pos = 0
 
         while not turn_off:
             while enter is False and on_menu:
@@ -345,7 +337,7 @@ def main():
                 elif menu_sel == 2 and pos == 3:
                     menu_sel = 1
                     pos = 2
-                    on_menu = True         
+                    on_menu = True
             if menu_sel == 1 and pos == 0:
                 while not odoo:
                     _logger.debug("No Odoo connection available")
