@@ -16,6 +16,8 @@ class Clocking:
         self.Disp = hardware[1]  # Display
         self.Reader = hardware[2]  # Card Reader
 
+        self.wifi = False
+
         self.card_logging_time_min = 1.5
         # minimum amount of seconds allowed for
         # the card logging process
@@ -94,23 +96,26 @@ class Clocking:
         else:
             strength = -int(self.get_status()['Signal level'])  # in dBm
             if strength >= 79:
-                msg = '    WiFi: very poor'
+                msg = ' '*9 + 'WiFi: '+'\u2022'*1+'o'*4
                 self.wifi = False
             elif strength >= 75:
-                msg = '         WiFi: poor'
+                msg = ' '*9 + 'WiFi: '+'\u2022'*2+'o'*3
                 self.wifi = True
             elif strength >= 65:
-                msg = '         WiFi: fair'
+                msg = ' '*9 + 'WiFi: '+'\u2022'*3+'o'*2
                 self.wifi = True
             elif strength >= 40:
-                msg = '         WiFi: good'
+                msg = ' '*9 + 'WiFi: '+'\u2022'*4+'o'*1
                 self.wifi = True
             else:
-                msg = '    WiFi: very good'
+                msg = ' '*9 + 'WiFi: '+'\u2022'*5
                 self.wifi = True
         _logger.debug(msg)
         return msg
 
+    def wifi_stable(self):
+        msg = self.wifi_signal_msg()
+        return self.wifi
     def odoo_msg(self):
         if self.Odoo._get_user_id():
             msg = '           Odoo OK'
@@ -182,7 +187,7 @@ class Clocking:
             try:
                 self.Odoo.check_attendance(db[key])
                 self.stored = self.stored - 1
-                print(self.stored, key, '=>\n ', db[key])
+                _logger.debug(self.stored, key, '=>\n ', db[key])
                 del db[key]
             except Exception as e:
                 _logger.exception(e)
